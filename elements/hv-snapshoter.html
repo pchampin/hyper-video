@@ -80,6 +80,23 @@ Note that it requires that the video source is CORS enabled.
           video.addEventListener('seeked', captureStep);
           video.currentTime = timestamps[0];
         });
+      },
+
+      /**
+       * TODO document captureNow()
+       */
+      captureNow: function() {
+        //console.log("captureNow");
+        var that = this;
+
+        return new Promise(function (resolve, reject) {
+          var video = that.parentNode;
+          that._canvas.width = video.getBoundingClientRect().width;
+          that._canvas.height = video.getBoundingClientRect().height;
+          that._ctx.drawImage(video, 0, 0, video.clientWidth, video.clientHeight);
+          var url = that._canvas.toDataURL();
+          resolve(url);
+        });
       }
 
     });

@@ -28,9 +28,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
     <h1>Hypervideo Demo - hv-snapshoter</h1>
 
-    <label>timestamps<input id="timestamps" value="10 20 30"></label>
     <div>
-      <button id="go" disabled>Take Snapshots</button></button>
+      <button id="go" disabled>Take Snapshots for</button>
+      <input id="timestamps" value="10 20 30">
+    </div>
+    <div>
+      <button id="now" disabled>Take Snapshot now</button>
     </div>
 
     <video id="v1" src="assets/big_buck_bunny.mp4" controls muted>
@@ -42,12 +45,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       window.addEventListener('load', function() {
         var timestamps = document.getElementById("timestamps");
         var go = document.getElementById("go");
+        var now = document.getElementById("now");
         var snapshoter = document.getElementById("snapshoter");
         var snapshots = document.getElementById("snapshots");
 
         window.addEventListener('WebComponentsReady', function() {
           go.disabled = false;
+          now.disabled = false;
         });
+
+       function addSnapshot(url, timestamp) {
+         if (timestamp === undefined) {
+            timestamp = snapshoter.parentElement.currentTime;
+          }
+          console.log("adding image for timestamp", timestamp);
+          var img = document.createElement("img");
+          img.src = url;
+          img.alt = "snapshot @"+timestamp;
+          snapshots.appendChild(img);
+        }
 
         go.addEventListener('click', function() {
           snapshots.innerHTML = "";
@@ -57,15 +73,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             jobs.push(parseInt(i));
           });
 
-          snapshoter.capture(jobs, function(url, timestamp) {
-            console.log("got image for timestamp", timestamp)
-            var img = document.createElement("img");
-            img.src = url;
-            img.alt = "snapshot @"+timestamp;
-            snapshots.appendChild(img);
-          }).then(function (urls) {
+          snapshoter.capture(jobs, addSnapshot)
+          .then(function (urls) {
             console.log('thank you hv-snapshoter :-)');
           });
+        });
+        now.addEventListener('click', function() {
+          snapshoter.captureNow().then(addSnapshot);
         });
       });
     </script>
